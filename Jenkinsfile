@@ -12,6 +12,7 @@ pipeline {
      stage('test') {
        agent any
        steps {
+        script {
          sh '''
            sudo apt-get update
            sudo apt-get install -y python3 python3-pip
@@ -19,6 +20,7 @@ pipeline {
            pip install fastapi pytest httpx
          '''
        }
+      }
      }
 
     stage('Docker build') {

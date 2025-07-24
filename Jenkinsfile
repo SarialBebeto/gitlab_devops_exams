@@ -9,17 +9,17 @@ pipeline {
   }
 
   stages {
-     stage('Update') {
-       agent any
-       steps {
-         sh '''
-           sudo apt-get update
-           sudo apt-get install -y python3 python3-pip
-           python3 -m pip install --upgrade pip setuptools wheel
-           pip install fastapi pytest httpx
-         '''
-       }
-     }
+    //  stage('Update') {
+    //    agent any
+    //    steps {
+    //      sh '''
+    //        sudo apt-get update
+    //        sudo apt-get install -y python3 python3-pip
+    //        python3 -m pip install --upgrade pip setuptools wheel
+    //        pip install fastapi pytest httpx
+    //      '''
+    //    }
+    //  }
 
     stage('Docker build') {
       agent any

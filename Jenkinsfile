@@ -9,17 +9,17 @@ pipeline {
   }
 
   stages {
-    stage('Update') {
-      agent { label 'k3s' }
-      steps {
-        sh '''
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
-          python3 -m pip install --upgrade pip setuptools wheel
-          pip install fastapi pytest httpx
-        '''
-      }
-    }
+    // stage('Update') {
+    //   agent { label 'k3s' }
+    //   steps {
+    //     sh '''
+    //       sudo apt-get update
+    //       sudo apt-get install -y python3 python3-pip
+    //       python3 -m pip install --upgrade pip setuptools wheel
+    //       pip install fastapi pytest httpx
+    //     '''
+    //   }
+    // }
 
     stage('Docker build') {
       agent { label 'k3s' }
@@ -33,6 +33,20 @@ pipeline {
               docker build -t $DOCKER_HUB_USERNAME/orders:$IMAGE_TAG -f orders/Dockerfile orders
 
               sleep 5
+            """
+          
+        }
+      }
+    }
+
+    stage(' Docker run') { // run container from the built images
+      agent { label 'k3s' }
+      steps {
+        script {
+            sh """
+              docker run -d --name gateway -p 8000:8000 $DOCKER_HUB_USERNAME/gateway:$IMAGE_TAG
+              docker run -d --name users -p 8001:8000 $DOCKER_HUB_USERNAME/users:$IMAGE_TAG
+              docker run -d --name orders -p 8002:8000 $DOCKER_HUB_USERNAME/orders:$IMAGE_TAG
             """
           
         }

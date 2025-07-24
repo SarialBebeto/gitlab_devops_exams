@@ -81,7 +81,7 @@ pipeline {
           rm -Rf .kube
           mkdir -p .kube
           ls
-          cat $KUBE_CONFIG > .kube/config
+          cat "$KUBE_CONFIG" > .kube/config
           chmod 600 .kube/config
             '''
           def environments = ['dev', 'qa', 'staging']
@@ -100,6 +100,7 @@ pipeline {
 def deployTo(envName) {
   sh """
     helm upgrade --install gateway ./fastapi-app/gateway \
+      --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
       --set image.repository=$DOCKER_HUB_USERNAME/gateway \
@@ -108,12 +109,14 @@ def deployTo(envName) {
       --set gateway.env.ORDERS_SERVICE_URL=http://orders-service:8000
 
     helm upgrade --install users ./fastapi-app/users \
+      --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
       --set image.repository=$DOCKER_HUB_USERNAME/users \
       --set image.tag=$IMAGE_TAG
 
     helm upgrade --install orders ./fastapi-app/orders \
+      --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
       --set image.repository=$DOCKER_HUB_USERNAME/orders \

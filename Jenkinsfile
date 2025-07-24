@@ -9,17 +9,17 @@ pipeline {
   }
 
   stages {
-    //  stage('Update') {
-    //    agent any
-    //    steps {
-    //      sh '''
-    //        sudo apt-get update
-    //        sudo apt-get install -y python3 python3-pip
-    //        python3 -m pip install --upgrade pip setuptools wheel
-    //        pip install fastapi pytest httpx
-    //      '''
-    //    }
-    //  }
+     stage('test') {
+       agent any
+       steps {
+         sh '''
+           sudo apt-get update
+           sudo apt-get install -y python3 python3-pip
+           python3 -m pip install --upgrade pip setuptools wheel
+           pip install fastapi pytest httpx
+         '''
+       }
+     }
 
     stage('Docker build') {
       agent any
@@ -129,7 +129,7 @@ def deployTo(envName) {
     if helm status orders --kubeconfig ${KUBE_CONFIG} --namespace ${envName} >/dev/null 2>&1; then
       helm uninstall orders --kubeconfig ${KUBE_CONFIG} --namespace ${envName}
     fi
-    
+
     helm upgrade --install orders ./fastapi-app/orders \
       --force \
       --kubeconfig ${KUBE_CONFIG} \

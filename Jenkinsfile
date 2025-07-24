@@ -45,10 +45,10 @@ pipeline {
         script {
             sh """
               set -e
-
               for service in gateway users orders; do
                 docker rm -f \$service || true
               done
+
               docker run -d --name gateway -p 8000:8000 $DOCKER_HUB_USERNAME/gateway:$IMAGE_TAG
               docker run -d --name users -p 8001:8000 $DOCKER_HUB_USERNAME/users:$IMAGE_TAG
               docker run -d --name orders -p 8002:8000 $DOCKER_HUB_USERNAME/orders:$IMAGE_TAG
@@ -99,8 +99,12 @@ pipeline {
 
 def deployTo(envName) {
   sh """
-    helm upgrade --install gateway ./fastapi-app/gateway \
-      --force \
+    # Gateway
+    if helm status gateway --kubeconfig ${KUBE_CONFIG} --namespace ${envName} >/dev/null 2>&1; then
+      helm uninstall gateway --kubeconfig ${KUBE_CONFIG} --namespace ${envName}
+    fi
+
+    helm install gateway ./fastapi-app/gateway \
       --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
@@ -108,15 +112,24 @@ def deployTo(envName) {
       --set image.tag=$IMAGE_TAG \
       --set gateway.env.USERS_SERVICE_URL=http://users-service:8000 \
       --set gateway.env.ORDERS_SERVICE_URL=http://orders-service:8000
+    
+    # Users
+    if helm status users --kubeconfig ${KUBE_CONFIG} --namespace ${envName} >/dev/null 2>&1; then
+      helm uninstall users --kubeconfig ${KUBE_CONFIG} --namespace ${envName}
+    fi
 
-    helm upgrade --install users ./fastapi-app/users \
-      --force \
+    helm install users ./fastapi-app/users \
       --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
       --set image.repository=$DOCKER_HUB_USERNAME/users \
       --set image.tag=$IMAGE_TAG
-
+    
+    # orders
+    if helm status orders --kubeconfig ${KUBE_CONFIG} --namespace ${envName} >/dev/null 2>&1; then
+      helm uninstall orders --kubeconfig ${KUBE_CONFIG} --namespace ${envName}
+    fi
+    
     helm upgrade --install orders ./fastapi-app/orders \
       --force \
       --kubeconfig ${KUBE_CONFIG} \

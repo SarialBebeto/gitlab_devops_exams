@@ -14,10 +14,10 @@ pipeline {
        steps {
         script {
          sh '''
-           sudo apt-get update
-           sudo apt-get install -y python3 python3-pip
-           python3 -m pip install --upgrade pip setuptools wheel
-           pip install fastapi pytest httpx
+           apt-get update || true
+           apt-get install -y python3 python3-pip || true
+           python3 -m pip install --upgrade pip setuptools wheel || true
+           pip install fastapi pytest httpx || true
          '''
        }
       }

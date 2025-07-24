@@ -22,7 +22,7 @@ pipeline {
     // }
 
     stage('Docker build') {
-      agent { label 'k3s' }
+      agent any
       steps {
         script {
             sh """
@@ -40,7 +40,7 @@ pipeline {
     }
 
     stage(' Docker run') { // run container from the built images
-      agent { label 'k3s' }
+      agent any
       steps {
         script {
             sh """
@@ -54,7 +54,7 @@ pipeline {
     }
 
     stage('Docker push') {
-      agent { label 'k3s' }
+      agent any
       steps {
         script {
             sh """
@@ -69,7 +69,7 @@ pipeline {
     }
 
     stage('Deploy') {
-      agent { label 'k3s' }
+      agent any
       steps {
         script {
           sh '''

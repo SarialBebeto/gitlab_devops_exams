@@ -9,17 +9,17 @@ pipeline {
   }
 
   stages {
-    // stage('Update') {
-    //   agent { label 'k3s' }
-    //   steps {
-    //     sh '''
-    //       sudo apt-get update
-    //       sudo apt-get install -y python3 python3-pip
-    //       python3 -m pip install --upgrade pip setuptools wheel
-    //       pip install fastapi pytest httpx
-    //     '''
-    //   }
-    // }
+     stage('Update') {
+       agent any
+       steps {
+         sh '''
+           sudo apt-get update
+           sudo apt-get install -y python3 python3-pip
+           python3 -m pip install --upgrade pip setuptools wheel
+           pip install fastapi pytest httpx
+         '''
+       }
+     }
 
     stage('Docker build') {
       agent any
@@ -76,7 +76,7 @@ pipeline {
           rm -Rf .kube
           mkdir -p .kube
           ls
-          cat KUBE_CONFIG > .kube/config
+          cat $KUBE_CONFIG > .kube/config
           chmod 600 .kube/config
             '''
           def environments = ['dev', 'qa', 'staging']

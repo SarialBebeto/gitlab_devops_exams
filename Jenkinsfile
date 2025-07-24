@@ -100,6 +100,7 @@ pipeline {
 def deployTo(envName) {
   sh """
     helm upgrade --install gateway ./fastapi-app/gateway \
+      --force \
       --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
@@ -109,6 +110,7 @@ def deployTo(envName) {
       --set gateway.env.ORDERS_SERVICE_URL=http://orders-service:8000
 
     helm upgrade --install users ./fastapi-app/users \
+      --force \
       --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \
@@ -116,6 +118,7 @@ def deployTo(envName) {
       --set image.tag=$IMAGE_TAG
 
     helm upgrade --install orders ./fastapi-app/orders \
+      --force \
       --kubeconfig ${KUBE_CONFIG} \
       --namespace ${envName} \
       --create-namespace \

@@ -44,6 +44,11 @@ pipeline {
       steps {
         script {
             sh """
+              set -e
+
+              for service in gateway users orders; do
+                docker rm -f \$service || true
+              done
               docker run -d --name gateway -p 8000:8000 $DOCKER_HUB_USERNAME/gateway:$IMAGE_TAG
               docker run -d --name users -p 8001:8000 $DOCKER_HUB_USERNAME/users:$IMAGE_TAG
               docker run -d --name orders -p 8002:8000 $DOCKER_HUB_USERNAME/orders:$IMAGE_TAG
